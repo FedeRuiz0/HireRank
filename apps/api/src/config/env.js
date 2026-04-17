@@ -8,7 +8,9 @@ const EnvSchema = z.object({
   PORT: z.coerce.number().int().positive().default(3001),
   DATABASE_URL: z.string().min(1),
   UPLOAD_DIR: z.string().default('src/storage/uploads/cvs'),
-  MAX_CV_FILE_SIZE_MB: z.coerce.number().positive().default(10)
+  MAX_CV_FILE_SIZE_MB: z.coerce.number().positive().default(10),
+  AI_SERVICE_BASE_URL: z.string().url().default('http://localhost:8001'),
+  AI_SERVICE_TIMEOUT_MS: z.coerce.number().int().positive().default(30000)
 });
 
 const parsedEnv = EnvSchema.safeParse(process.env);
