@@ -1,11 +1,14 @@
 import { useEffect, useMemo, useState } from 'react';
 
+import { useI18n } from '../i18n/I18nProvider';
 import { getAnalysisResult, startAnalysis, uploadCv } from '../services/api';
 import type { AnalysisResultPayload, AnalysisStatus, ResultError } from '../types/api';
 
 const POLL_INTERVAL_MS = 2000;
 
 export const useAnalysisFlow = () => {
+  const { t } = useI18n();
+
   const [cvFile, setCvFile] = useState<File | null>(null);
   const [cvId, setCvId] = useState<string | null>(null);
   const [uploadedFileName, setUploadedFileName] = useState<string | null>(null);
@@ -32,7 +35,7 @@ export const useAnalysisFlow = () => {
     setResult(null);
     setAnalysisError(null);
     setUiError(null);
-    setUiSuccess('Puedes analizar otra vacante con el mismo CV.');
+    setUiSuccess(t.uiMessages.resetAnotherJob);
   };
 
   const resetForAnotherCv = () => {
@@ -44,12 +47,12 @@ export const useAnalysisFlow = () => {
     setResult(null);
     setAnalysisError(null);
     setUiError(null);
-    setUiSuccess('Listo para subir un nuevo CV.');
+    setUiSuccess(t.uiMessages.resetAnotherCv);
   };
 
   const handleUploadCv = async () => {
     if (!cvFile) {
-      setUiError('Selecciona un archivo PDF antes de subirlo.');
+      setUiError(t.uiMessages.noFileSelected);
       return;
     }
 
@@ -65,9 +68,9 @@ export const useAnalysisFlow = () => {
       setAnalysisId(null);
       setResult(null);
       setAnalysisError(null);
-      setUiSuccess('CV subido correctamente. Ya puedes iniciar el análisis.');
+      setUiSuccess(t.uiMessages.uploadSuccess);
     } catch (error) {
-      setUiError(error instanceof Error ? error.message : 'No se pudo subir el CV');
+      setUiError(error instanceof Error ? error.message : t.uiMessages.uploadFailed);
     } finally {
       setIsUploading(false);
     }
@@ -75,7 +78,7 @@ export const useAnalysisFlow = () => {
 
   const handleStartAnalysis = async (jobDescription: string) => {
     if (!cvId) {
-      setUiError('Primero sube un CV válido.');
+      setUiError(t.uiMessages.startWithoutCv);
       return;
     }
 
@@ -89,9 +92,9 @@ export const useAnalysisFlow = () => {
       const response = await startAnalysis({ cvId, jobDescription });
       setAnalysisId(response.analysisId);
       setStatus(response.status);
-      setUiSuccess('Análisis iniciado. Estamos procesando tu solicitud.');
+      setUiSuccess(t.uiMessages.analysisStarted);
     } catch (error) {
-      setUiError(error instanceof Error ? error.message : 'No se pudo iniciar el análisis');
+      setUiError(error instanceof Error ? error.message : t.uiMessages.startFailed);
     } finally {
       setIsStartingAnalysis(false);
     }
@@ -117,21 +120,21 @@ export const useAnalysisFlow = () => {
         if (response.status === 'completed') {
           setResult(response.result);
           setAnalysisError(null);
-          setUiSuccess('Análisis completado. Revisa los resultados.');
+          setUiSuccess(t.uiMessages.analysisCompleted);
           return;
         }
 
         if (response.status === 'failed') {
           setAnalysisError(response.error);
           setResult(null);
-          setUiError(response.error?.message ?? 'El análisis falló');
+          setUiError(response.error?.message ?? t.uiMessages.analysisFailedFallback);
         }
       } catch (error) {
         if (!isActive) {
           return;
         }
 
-        setUiError(error instanceof Error ? error.message : 'No se pudo consultar el estado del análisis');
+        setUiError(error instanceof Error ? error.message : t.uiMessages.pollFailed);
       }
     };
 
@@ -144,7 +147,7 @@ export const useAnalysisFlow = () => {
       isActive = false;
       window.clearInterval(intervalId);
     };
-  }, [analysisId]);
+  }, [analysisId, t]);
 
   return {
     cvFile,

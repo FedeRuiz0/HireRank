@@ -1,5 +1,6 @@
 import type { ChangeEvent } from 'react';
 
+import { useI18n } from '../i18n/I18nProvider';
 import Card from './ui/Card';
 
 interface UploadSectionProps {
@@ -17,6 +18,8 @@ const UploadSection = ({
   onSelectFile,
   onUpload
 }: UploadSectionProps) => {
+  const { t } = useI18n();
+
   const handleFileChange = (event: ChangeEvent<HTMLInputElement>) => {
     const selectedFile = event.target.files?.[0] ?? null;
     onSelectFile(selectedFile);
@@ -26,14 +29,14 @@ const UploadSection = ({
     <Card>
       <div className="flex items-start justify-between gap-4">
         <div>
-          <h2 className="text-lg font-semibold text-slate-900">Upload CV</h2>
-          <p className="mt-1 text-sm text-slate-600">Selecciona un PDF con texto seleccionable para iniciar el análisis.</p>
+          <h2 className="text-lg font-semibold text-slate-900">{t.upload.title}</h2>
+          <p className="mt-1 text-sm text-slate-600">{t.upload.subtitle}</p>
         </div>
-        <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-medium text-slate-700">Step 1</span>
+        <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-medium text-slate-700">{t.upload.step}</span>
       </div>
 
       <label className="mt-5 block">
-        <span className="mb-2 block text-xs font-semibold uppercase tracking-wide text-slate-500">Archivo PDF</span>
+        <span className="mb-2 block text-xs font-semibold uppercase tracking-wide text-slate-500">{t.upload.fileLabel}</span>
         <input
           type="file"
           accept="application/pdf,.pdf"
@@ -49,16 +52,20 @@ const UploadSection = ({
           disabled={isUploading}
           className="inline-flex min-w-32 items-center justify-center rounded-xl bg-brand-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-brand-700 disabled:cursor-not-allowed disabled:bg-slate-400"
         >
-          {isUploading ? 'Subiendo…' : 'Subir CV'}
+          {isUploading ? t.upload.uploadingButton : t.upload.uploadButton}
         </button>
-        <p className="text-xs text-slate-500">Formato soportado: PDF</p>
+        <p className="text-xs text-slate-500">{t.upload.formatHint}</p>
       </div>
 
       {cvId ? (
         <div className="mt-5 rounded-xl border border-emerald-200 bg-emerald-50 px-3 py-2.5 text-sm text-emerald-800">
-          <p className="font-medium">CV listo para analizar</p>
-          <p className="mt-1 text-xs text-emerald-700">Archivo: {uploadedFileName ?? 'PDF cargado'}</p>
-          <p className="mt-1 text-xs text-emerald-700">cvId: {cvId}</p>
+          <p className="font-medium">{t.upload.readyTitle}</p>
+          <p className="mt-1 text-xs text-emerald-700">
+            {t.upload.fileName}: {uploadedFileName ?? t.upload.fallbackFileName}
+          </p>
+          <p className="mt-1 text-xs text-emerald-700">
+            {t.upload.cvId}: {cvId}
+          </p>
         </div>
       ) : null}
     </Card>
