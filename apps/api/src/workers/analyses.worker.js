@@ -7,7 +7,7 @@ import {
   markAnalysisFailed
 } from '../modules/analyses/analyses.repository.js';
 
-const WORKER_INTERVAL_MS = 5000;
+export const WORKER_INTERVAL_MS = 5000;
 
 const mapToAnalysisErrorCode = (error) => {
   if (error?.code) {
@@ -83,10 +83,7 @@ export const startAnalysesWorker = () => {
     logger.error('Unexpected worker startup error', { message: error.message });
   });
 
-  logger.info(`Analyses worker started (interval: ${WORKER_INTERVAL_MS}ms)`);
-
   return () => {
     clearInterval(intervalId);
-    logger.info('Analyses worker stopped');
   };
 };
